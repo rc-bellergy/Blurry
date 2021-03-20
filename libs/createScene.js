@@ -1,5 +1,5 @@
 function setGlobals() {
-    pointsPerFrame     = 50000;
+    pointsPerFrame = 20000;
 
     cameraPosition = new THREE.Vector3(0, 0, 115);
     cameraFocalDistance = 100;
@@ -27,25 +27,35 @@ let lightDir1 = vec3(-1, 1, 0.2).normalize();
 function createScene() {
     Utils.setRandomSeed("3926153465010");
 
-    rand  = function() { return Utils.rand(); };
-    nrand = function() { return rand() * 2 - 1; };
+    rand  = function() { return Utils.rand(); }; // [0 ... 1]
+    nrand = function() { return rand() * 2 - 1; };// [-1 ... 1]
 
     computeWeb();
     computeSparkles();
+
+    animation();
 }
 
 function computeWeb() { 
-    let r1 = 35;
+    // how many curved lines to draw
     let r2 = 17;
-    for(let j = 0; j < r2; j++) {
-        for(let i = 0; i < r1; i++) {
-            let phi1   = (j + i * 0.075) / r2 * Math.PI * 2;
+    // how many "straight pieces" to assign to each of these curved lines
+    let r1 = 32;
+    for (let j = 0; j < r2; j++) {
+        for (let i = 0; i < r1; i++) {
+            // definining the spherical coordinates of the two vertices of the line we're drawing
+            // https://zh.wikipedia.org/wiki/%E7%90%83%E5%BA%A7%E6%A8%99%E7%B3%BB
+            let phi1 = j / r2 * Math.PI * 2;
             let theta1 = i / r1 * Math.PI - Math.PI * 0.5;
-            
-            let phi2   = (j + (i+1) * 0.075) / r2 * Math.PI * 2;
-            let theta2 = (i+1) / r1 * Math.PI - Math.PI * 0.5;
 
+            let phi2 = j / r2 * Math.PI * 2;
+            let theta2 = (i + 1) / r1 * Math.PI - Math.PI * 0.5;
 
+            // twist the sphere
+            phi1 += theta1;
+            phi2 += theta2;
+
+            // converting spherical coordinates to cartesian
             let x1 = Math.sin(phi1) * Math.cos(theta1);
             let y1 = Math.sin(theta1);
             let z1 = Math.cos(phi1) * Math.cos(theta1);
@@ -54,57 +64,44 @@ function computeWeb() {
             let y2 = Math.sin(theta2);
             let z2 = Math.cos(phi2) * Math.cos(theta2);
 
+            // size of the sphere
+            let size1 = 20
+            let size2 = 20
 
             lines.push(
                 new Line({
-                    v1: vec3(x1,z1,y1).multiplyScalar(15),
-                    v2: vec3(x2,z2,y2).multiplyScalar(15),
-                    c1: vec3(5,5,5),
-                    c2: vec3(5,5,5),
+                    v1: vec3(x1, y1, z1).multiplyScalar(size1),
+                    v2: vec3(x2, y2, z2).multiplyScalar(size2),
+                    c1: vec3(5, 5, 5),
+                    c2: vec3(5, 5, 5),
                 })
             );
+            
         }
     }
-
-    // intersect many 3d planes against all the lines we made so far
-    for(let i = 0; i < 4500; i++) {
+    for (let i = 0; i < 4500; i++) {
         let x0 = nrand() * 15;
         let y0 = nrand() * 15;
         let z0 = nrand() * 15;
 
+        // dir will be a random direction in the unit sphere
         let dir = vec3(nrand(), nrand(), nrand()).normalize();
         findIntersectingEdges(vec3(x0, y0, z0), dir);
     }
+}
 
-    // recolor edges  
-    for(line of lines) {
-        let v1 = line.v1;
+function animation() {
+    controls.autoRotate = true;
 
-        // these will be used as the "red vectors" of the previous example
-        let normal1 = v1.clone().normalize();
-
-   	    // lets calculate how much light the two endpoints of the line
-	    // will get from the "lightDir0" light source (the white light)
-	    // we need Math.max( ... , 0.1) to make sure the dot product doesn't get lower than
-	    // 0.1, this will ensure each point is at least partially lit by a light source and
-	    // doesn't end up being completely black
-        let diffuse0  = Math.max(lightDir0.dot(normal1) * 3, 0.15);
-        let diffuse1  = Math.max(lightDir1.dot(normal1) * 2, 0.2 );
-
-        let firstColor  = [diffuse0, diffuse0, diffuse0];
-        let secondColor = [2 * diffuse1, 0.2 * diffuse1, 0];
-
-        let r1 = firstColor[0] + secondColor[0];
-        let g1 = firstColor[1] + secondColor[1];
-        let b1 = firstColor[2] + secondColor[2];
-
-        let r2 = firstColor[0] + secondColor[0];
-        let g2 = firstColor[1] + secondColor[1];
-        let b2 = firstColor[2] + secondColor[2];
-
-        line.c1 = vec3(r1, g1, b1);
-        line.c2 = vec3(r2, g2, b2);
-    }
+    camera.position.set(0,200,50);
+    anime({
+        targets: camera.position,
+        z:110,
+        y:0,
+        duration: 3000,
+        easing: 'easeInOutQuad'
+    })
+    // console.log(camera);
 }
 
 function computeSparkles() {
