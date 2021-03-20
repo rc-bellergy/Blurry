@@ -199,9 +199,6 @@ let lastFrameDate = 0;
 function render(now) {
     requestAnimationFrame(render);
 
-    checkControls();
-
-
 
     if(!capturerStarted) {
         capturerStarted = true;
@@ -546,58 +543,3 @@ function buildControls() {
     });
 }
 
-function checkControls() {
-    if(controls["o"]) {
-        cameraFocalDistance -= 0.6;
-        console.log("cfd: " + cameraFocalDistance);
-        resetCanvas();
-    }
-    if(controls["p"]) {
-        cameraFocalDistance += 0.6;        
-        console.log("cfd: " + cameraFocalDistance);
-        resetCanvas();
-    }
-    
-    if(controls["k"]) {
-        bokehStrength += 0.001;
-        console.log("bs: " + bokehStrength);
-        resetCanvas();    
-    }
-    if(controls["l"]) {
-        bokehStrength -= 0.001;        
-        bokehStrength = Math.max(bokehStrength, 0);        
-        console.log("bs: " + bokehStrength);
-        resetCanvas();
-    }
-
-    if(controls["n"]) {
-        bokehFalloff += 3.5;
-        console.log("bf: " + bokehFalloff);
-    }
-    if(controls["m"]) {
-        bokehFalloff -= 3.5;        
-        console.log("bf: " + bokehFalloff);
-    }
-
-    if(controls["v"]) {
-        exposure += 0.0001;
-        console.log("exp: " + exposure);
-    }
-    if(controls["b"]) {
-        exposure -= 0.0001;
-        exposure = Math.max(exposure, 0.0001);
-        console.log("exp: " + exposure);
-    }
-
-    if(controls["u"]) {
-        distanceAttenuation += 0.003;
-        console.log("da: " + distanceAttenuation);
-        resetCanvas();
-    }
-    if(controls["i"]) {
-        distanceAttenuation -= 0.003;
-        distanceAttenuation = Math.max(distanceAttenuation, 0);
-        console.log("da: " + distanceAttenuation);
-        resetCanvas();
-    }
-}

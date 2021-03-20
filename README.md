@@ -6,3 +6,6 @@ Please read the original README [here](README_original.md).
 - Add function to computeGeometry to create lines from loaded model
 
 ![](screenshot3.jpg)
+
+## Live demo
+https://designquest.com.hk/demo/threejs/blurry/

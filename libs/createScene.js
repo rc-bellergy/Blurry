@@ -48,6 +48,8 @@ function createScene() {
         window.dispatchEvent(new Event('modelReady'));
     });
 
+    computeSparkles();
+
     addDebug();
 }
 
