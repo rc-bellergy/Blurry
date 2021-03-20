@@ -1,7 +1,7 @@
 function setGlobals() {
     pointsPerFrame = 200;
 
-    cameraPosition = new THREE.Vector3(0, 0, 115);
+    cameraPosition = new THREE.Vector3(0, 0, 123);
     cameraFocalDistance = 100;
 
     minimumLineSize = 0.005;
@@ -40,12 +40,15 @@ function createScene() {
         const bufferGeometry = gltf.scene.children[0].children[0].geometry;
         const geometry = new THREE.Geometry().fromBufferGeometry(bufferGeometry);
         geometry.scale(0.5,0.5,0.5);
-        geometry.translate(0,-20,0);
+        geometry.translate(0,-25,0);
+        geometry.rotateY(-Math.PI * 0.2);
 
         computeGeometry(geometry, vec3(5,5,5));
 
         window.dispatchEvent(new Event('modelReady'));
-    })
+    });
+
+    addDebug();
 }
 
 function computeGeometry(geometry /* THREE geometry */, color) {
@@ -145,6 +148,32 @@ function animation() {
         easing: 'easeInOutQuad'
     })
     // console.log(camera);
+}
+
+function addDebug() {
+    const proxy = {
+        cameraFocalDistance: cameraFocalDistance,
+        bokehStrength: bokehStrength,
+        exposure: exposure,
+        distanceAttenuation: distanceAttenuation
+    }
+    const gui = new dat.GUI();
+    gui.add(proxy, 'cameraFocalDistance', 50, 150).onChange((value) => {
+        cameraFocalDistance = value;
+        resetCanvas();
+    });
+    gui.add(proxy, 'bokehStrength', 0, 0.03, 0.0001).onChange((value) => {
+        bokehStrength = value;
+        resetCanvas();
+    });
+    gui.add(proxy, 'exposure', 0.0001, 0.2, 0.0001).onChange((value) => {
+        exposure = value;
+        resetCanvas();
+    });
+    gui.add(proxy, 'distanceAttenuation', 0, 0.1, 0.001).onChange((value) => {
+        distanceAttenuation = value;
+        resetCanvas();
+    });
 }
 
 function computeSparkles() {
