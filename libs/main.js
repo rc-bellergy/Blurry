@@ -285,6 +285,9 @@ function resetCanvas() {
 }
 
 function createLinesWrapper(frames) {
+
+    console.log('createLinesWrapper');
+
     // ***************** lines creation 
     lines = [];
     scene.remove(scene.getObjectByName("points"));
@@ -292,30 +295,28 @@ function createLinesWrapper(frames) {
     quads = [];
     scene.remove(scene.getObjectByName("quad-points"));
 
-
-
-
     createScene(frames);
 
+    window.addEventListener('modelReady', () => {
+
+        // ***************** lines creation
+        createLinesGeometry();
+        let mesh = new THREE.Points(linesGeometry, linesMaterial);
+        mesh.name = "points";
+
+        scene.add(mesh);
+        // ***************** lines creation - END
 
 
-    // ***************** lines creation
-    createLinesGeometry();
-    let mesh = new THREE.Points(linesGeometry, linesMaterial);
-    mesh.name = "points";
 
-    scene.add(mesh);
-    // ***************** lines creation - END
+        // ***************** quads creation 
+        createQuadsGeometry();
+        let quadmesh = new THREE.Points(quadsGeometry, quadsMaterial);
+        quadmesh.name = "quad-points";
 
-
-
-    // ***************** quads creation 
-    createQuadsGeometry();
-    let quadmesh = new THREE.Points(quadsGeometry, quadsMaterial);
-    quadmesh.name = "quad-points";
-
-    scene.add(quadmesh);
-    // ***************** quads creation - END
+        scene.add(quadmesh);
+        // ***************** quads creation - END
+    });
 
 }
 

@@ -5,7 +5,7 @@ var cameraTarget   = new THREE.Vector3(0, 0, 0);
 var cameraFocalDistance = 49.19;
 var bokehStrength = 0.025;
 var exposure = 0.0019;
-var distanceAttenuation = 0;
+var distanceAttenuation = 1;
 // set to 1 to have non-linear increase in focal strength
 var focalPowerFunction = 0;
 

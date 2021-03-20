@@ -1,5 +1,5 @@
 function setGlobals() {
-    pointsPerFrame = 20000;
+    pointsPerFrame = 200;
 
     cameraPosition = new THREE.Vector3(0, 0, 115);
     cameraFocalDistance = 100;
@@ -8,8 +8,8 @@ function setGlobals() {
 
     bokehStrength = 0.02; 
     focalPowerFunction = 1;
-    exposure = 0.009;
-    distanceAttenuation = 0.002;
+    exposure = 0.04;
+    distanceAttenuation = 0.01;
 
     useBokehTexture = true;
     bokehTexturePath = "assets/bokeh/pentagon2.png";
@@ -24,45 +24,67 @@ let vec3      = function(x,y,z) { return new THREE.Vector3(x,y,z) };
 let lightDir0 = vec3(1, 1, 0.2).normalize();
 let lightDir1 = vec3(-1, 1, 0.2).normalize();
 
+function promiseLoader (loader, url) {
+    return new Promise((resolve, reject) => {
+        loader.load(url, data => resolve(data), null, reject)
+    })
+}
+
 function createScene() {
     Utils.setRandomSeed("3926153465010");
-
     rand  = function() { return Utils.rand(); }; // [0 ... 1]
     nrand = function() { return rand() * 2 - 1; };// [-1 ... 1]
 
-    let box = new THREE.BoxGeometry(20,20,20);
-    computeGeometry(box);
+    const gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load('assets/models/fox/glTF/Fox.gltf', gltf => {
+        const bufferGeometry = gltf.scene.children[0].children[0].geometry;
+        const geometry = new THREE.Geometry().fromBufferGeometry(bufferGeometry);
+        geometry.scale(0.5,0.5,0.5);
+        geometry.translate(0,-20,0);
 
-    // computeWeb();
-    // computeSparkles();
-    // animation();
+        computeGeometry(geometry, vec3(5,5,5));
+
+        window.dispatchEvent(new Event('modelReady'));
+    })
 }
 
-function computeGeometry(geometry /* THREE geometry */) {
-    let vertex = geometry.vertices;
+function computeGeometry(geometry /* THREE geometry */, color) {
+    let vertices = geometry.vertices;
     let faces = geometry.faces;
+    // console.log(vertices);
+    // console.log(faces);
+
     faces.forEach(face => {
         lines.push(
             new Line({
-                v1: vec3(vertex[face.a].x, vertex[face.a].y, vertex[face.a].z),
-                v2: vec3(vertex[face.b].x, vertex[face.b].y, vertex[face.b].z),
-                c1: vec3(5, 5, 5),
-                c2: vec3(5, 5, 5),
+                v1: vec3(vertices[face.a].x, vertices[face.a].y, vertices[face.a].z),
+                v2: vec3(vertices[face.b].x, vertices[face.b].y, vertices[face.b].z),
+                c1: color,
+                c2: color,
             }),
             new Line({
-                v1: vec3(vertex[face.b].x, vertex[face.b].y, vertex[face.b].z),
-                v2: vec3(vertex[face.c].x, vertex[face.c].y, vertex[face.c].z),
-                c1: vec3(5, 5, 5),
-                c2: vec3(5, 5, 5),
+                v1: vec3(vertices[face.b].x, vertices[face.b].y, vertices[face.b].z),
+                v2: vec3(vertices[face.c].x, vertices[face.c].y, vertices[face.c].z),
+                c1: color,
+                c2: color,
             }),
             new Line({
-                v1: vec3(vertex[face.a].x, vertex[face.a].y, vertex[face.a].z),
-                v2: vec3(vertex[face.c].x, vertex[face.c].y, vertex[face.c].z),
-                c1: vec3(5, 5, 5),
-                c2: vec3(5, 5, 5),
+                v1: vec3(vertices[face.a].x, vertices[face.a].y, vertices[face.a].z),
+                v2: vec3(vertices[face.c].x, vertices[face.c].y, vertices[face.c].z),
+                c1: color,
+                c2: color,
             })
         )
     });
+    for (let i = 0; i < 4500; i++) {
+        let x0 = nrand() * 150;
+        let y0 = nrand() * 150;
+        let z0 = nrand() * 150;
+
+        // dir will be a random direction in the unit sphere
+        let dir = vec3(nrand(), nrand(), nrand()).normalize();
+        findIntersectingEdges(vec3(x0, y0, z0), dir);
+    }
 
 }
 
@@ -108,15 +130,6 @@ function computeWeb() {
             );
             
         }
-    }
-    for (let i = 0; i < 4500; i++) {
-        let x0 = nrand() * 15;
-        let y0 = nrand() * 15;
-        let z0 = nrand() * 15;
-
-        // dir will be a random direction in the unit sphere
-        let dir = vec3(nrand(), nrand(), nrand()).normalize();
-        findIntersectingEdges(vec3(x0, y0, z0), dir);
     }
 }
 
