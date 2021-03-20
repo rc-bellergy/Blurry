@@ -30,10 +30,40 @@ function createScene() {
     rand  = function() { return Utils.rand(); }; // [0 ... 1]
     nrand = function() { return rand() * 2 - 1; };// [-1 ... 1]
 
-    computeWeb();
-    computeSparkles();
+    let box = new THREE.BoxGeometry(20,20,20);
+    computeGeometry(box);
 
-    animation();
+    // computeWeb();
+    // computeSparkles();
+    // animation();
+}
+
+function computeGeometry(geometry /* THREE geometry */) {
+    let vertex = geometry.vertices;
+    let faces = geometry.faces;
+    faces.forEach(face => {
+        lines.push(
+            new Line({
+                v1: vec3(vertex[face.a].x, vertex[face.a].y, vertex[face.a].z),
+                v2: vec3(vertex[face.b].x, vertex[face.b].y, vertex[face.b].z),
+                c1: vec3(5, 5, 5),
+                c2: vec3(5, 5, 5),
+            }),
+            new Line({
+                v1: vec3(vertex[face.b].x, vertex[face.b].y, vertex[face.b].z),
+                v2: vec3(vertex[face.c].x, vertex[face.c].y, vertex[face.c].z),
+                c1: vec3(5, 5, 5),
+                c2: vec3(5, 5, 5),
+            }),
+            new Line({
+                v1: vec3(vertex[face.a].x, vertex[face.a].y, vertex[face.a].z),
+                v2: vec3(vertex[face.c].x, vertex[face.c].y, vertex[face.c].z),
+                c1: vec3(5, 5, 5),
+                c2: vec3(5, 5, 5),
+            })
+        )
+    });
+
 }
 
 function computeWeb() { 
